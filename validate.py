@@ -23,11 +23,14 @@ class Page(HTMLParser):
         self.ids = []
         self.links = []
         self.slides = 0
+        self.references = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if 'id' in attrs:
             self.ids.append(attrs['id'])
+        for attribute in ('aria-labelledby', 'aria-describedby', 'aria-controls'):
+            self.references.extend(attrs.get(attribute, '').split())
         if tag == 'a' and 'href' in attrs:
             self.links.append(attrs['href'])
         if 'slide' in attrs.get('class', '').split():
@@ -40,6 +43,8 @@ for filename in ('index.html', 'demo.html'):
     parser = Page()
     parser.feed((ROOT / filename).read_text(encoding='utf-8'))
     assert len(parser.ids) == len(set(parser.ids)), f'Duplicate IDs: {filename}'
+    for reference in parser.references:
+        assert reference in parser.ids, f'Missing accessibility target: {reference}'
     for link in parser.links:
         if link.startswith('#'):
             assert not link[1:] or link[1:] in parser.ids, f'Missing anchor: {link}'
@@ -68,6 +73,7 @@ check(document.querySelector('#object-art').innerHTML.includes('ellipse'),'Initi
 click('[data-filter="moon"]');
 check([...document.querySelectorAll('.artifact-button:not([hidden])')].length===3,'Moon filter');
 check(document.querySelector('#story-title').textContent==='The lunar rover','Filter selects valid story');
+check(document.querySelector('#story-announcement').textContent.includes('The lunar rover'),'Story change announced');
 click('[data-id="hammer"]');
 check(document.querySelector('#narration').textContent.includes('David Scott'),'Hammer narrative');
 click('#next');
@@ -93,6 +99,25 @@ for(const button of document.querySelectorAll('.artifact-button')){
  check(document.querySelector('#object-art').innerHTML.length>100,'Object drawing');
  check(!document.querySelector('.scene').scrollWidth || document.documentElement.scrollWidth<=window.innerWidth,'No horizontal page overflow');
 }
+const spoken=[];
+Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{cancel(){},speak(utterance){spoken.push(utterance);}}});
+Object.defineProperty(window,'SpeechSynthesisUtterance',{configurable:true,value:class {constructor(text){this.text=text;}}});
+click('#listen');
+check(document.querySelector('#listen').getAttribute('aria-pressed')==='true','Speech start state');
+const oldSpeech=spoken[0];
+click('[data-id="spirit"]');
+check(document.querySelector('#listen').getAttribute('aria-pressed')==='false','Story change cancels speech');
+oldSpeech.onerror();
+check(document.querySelector('#audio-status').textContent==='','Ignore canceled speech error');
+click('#listen');
+oldSpeech.onend();
+check(document.querySelector('#listen').getAttribute('aria-pressed')==='true','Old completion cannot stop new speech');
+spoken[1].onend();
+check(document.querySelector('#audio-status').textContent==='Story finished.','Current speech completion');
+click('#listen');
+click('#listen');
+spoken[2].onerror();
+check(document.querySelector('#audio-status').textContent==='','Manual stop ignores late error');
 """
 DEMO_TEST = r"""
 const check=(condition,message)=>{if(!condition)throw Error(message);};
@@ -113,7 +138,7 @@ check(document.documentElement.scrollWidth<=window.innerWidth,'No horizontal pag
 """
 
 for filename, test in (('index.html', MUSEUM_TEST), ('demo.html', DEMO_TEST)):
-    for width in (1280, 390):
+    for width in (1280, 390, 320):
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temporary:
             temp = Path(temporary)
             source = (ROOT / filename).read_text(encoding='utf-8')

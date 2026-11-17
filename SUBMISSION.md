@@ -55,7 +55,10 @@ Use the actual current form and check each required field. Discussion #1858 list
 - **Title:** Still Here
 - **High-level summary:** adapt the draft below after reviewing the finished museum.
 - **Project demo:** your hosted `demo.html` address, or the actual public/viewable presentation PDF link if you choose that route.
-- **Final project:** your hosted main site address, which opens `index.html`. Add a public code repository link only if you actually create one.
+- **Final project:** https://vocal-starship-0390bb.netlify.app/
+- **Source code:** https://github.com/sreeharisp/still-here
+- **Demo presentation:** https://vocal-starship-0390bb.netlify.app/demo.html
+- These are existing public addresses; after updating files, verify that the hosted versions match your latest work.
 - **Detailed description:** explain the educational need, interaction, artifacts, source-to-fact mapping, fictional-story labels, technical approach, and limitations. Describe only interactions actually present in the final build.
 - **NASA Data / References:** include every NASA source below and the exact use. Explicitly identify the verified challenge-listed qualifying source and meaningful data use once that check is complete.
 - **Other resources and tools:** list the actual tools used, including HTML/CSS/JavaScript, Zed, the OpenAI assistant, and the static host only if you use it. Add any further tools used by the team; do not invent tools or external asset credits.
@@ -116,6 +119,17 @@ If any generated images or videos are added, keep their required AI-generated wa
 - [ ] Official submission fields, references, and terms have been completed by the team.
 
 These are checks still to perform, not claims of completed validation or guaranteed eligibility.
+
+### Keep GitHub and Netlify in sync
+
+Local edits are not automatically published. Unless you have explicitly connected Netlify to your GitHub repository:
+
+1. Open https://github.com/sreeharisp/still-here and select **Add file → Upload files**.
+2. Upload the updated files from this project folder and commit the replacements to `main`.
+3. In the existing Netlify project's Deploys page, use its manual deployment upload area to deploy the updated project folder. Do not create another site just to update this one.
+4. Open the live museum and presentation in a private window and check the changes.
+
+Replace the short auto-generated GitHub README with the full `README.md` from this folder. In the repository's About settings, set the website to the existing Netlify address. You may add relevant topics such as `space`, `astronomy`, `storytelling`, `javascript`, and `nasa-space-apps` without implying NASA endorsement.
 
 ## 9. Technical validation
 
